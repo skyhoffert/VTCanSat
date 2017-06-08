@@ -1,6 +1,10 @@
-% This matlab file is to determine if real time plotting
-% is possible with the matlab software
-clear, clc
+% Owner:        VT CanSat
+% File:         ReceiveData.m
+% Description:  This script generates 'random' data that could
+%               represent what would be received and logged by
+%               the XBee radio on the GS during flight.
+% Modified By:  Sky Hoffert
+% LastModified: 6/8/2017
 
 % variables
 filename = 'log.csv';

@@ -1,3 +1,10 @@
+% Owner:        VT CanSat
+% File:         main.m
+% Description:  This file runs the GUI which displays plots in
+%               real time as the glider descends.
+% Modified By:  Sky Hoffert
+% LastModified: 6/8/2017
+
 function varargout = main(varargin)
 % MAIN MATLAB code for main.fig
 %      MAIN, by itself, creates a new MAIN or raises the existing
