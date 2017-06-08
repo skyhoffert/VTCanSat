@@ -29,7 +29,7 @@ function varargout = main(varargin)
 
 % Edit the above text to modify the response to help main
 
-% Last Modified by GUIDE v2.5 31-May-2017 16:23:33
+% Last Modified by GUIDE v2.5 08-Jun-2017 13:34:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,7 +60,8 @@ function main_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to main (see VARARGIN)
 
 % timer for updating display
-handles.timer = timer('ExecutionMode', 'fixedRate', 'Period', 1, 'TimerFcn', {@update_display, hObject, handles});
+handles.timer = timer('ExecutionMode', 'fixedRate', 'Period', 1, ...
+    'TimerFcn', {@update_display, hObject, handles});
 
 start(handles.timer);
 
@@ -90,15 +91,13 @@ function btn_release_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% update output
+set(handles.str_output, 'String', 'Release command sent');
 
-% --- Executes on button press in chckbx_1.
-function chckbx_1_Callback(hObject, eventdata, handles)
-% hObject    handle to chckbx_1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+% code for releasing the payload
+disp('INVALID CODE FOR PAYLOAD RELEASE COMMAND');
 
-% Hint: get(hObject,'Value') returns toggle state of chckbx_1
-
+% timer callback function
 function update_display(obj, event, text_arg, handles)
 % update everything
 
@@ -110,7 +109,8 @@ try
     fid = fopen(filename, 'r');
     
     % import the data from the given filename
-    data = textscan(fid, repmat('%s', 1, 11), 'delimiter', ',', 'CollectOutput', true);
+    data = textscan(fid, repmat('%s', 1, 11), 'delimiter', ',', ...
+        'CollectOutput', true);
 catch
     % d
     return
@@ -132,12 +132,10 @@ ar_speed = str2double(data(:,7));
 ar_temp = str2double(data(:,8));
 ar_voltage = str2double(data(:,9));
 ar_heading = str2double(data(:,10));
-ar_sw_state = data(:,11);
-
-% create buffer
-buffer = sprintf('Connected: %d', get(handles.chckbx_1, 'Value'));
+ar_sw_state = str2double(data(:,11));
 
 % output some info
+buffer = 'Output';
 set(handles.str_output, 'String', buffer);
 
 % update plots
@@ -145,8 +143,11 @@ plot(handles.plot_volt, ar_voltage);
 plot(handles.plot_alt, ar_alt);
 plot(handles.plot_press, ar_press);
 plot(handles.plot_temp, ar_temp);
-plot3(handles.plot_pos, ar_speed.*cos(ar_heading), ...
-    ar_speed.*sin(ar_heading), ar_alt);
+plot(handles.plot_pos, ar_speed.*cos(ar_heading), ...
+    ar_speed.*sin(ar_heading));
+plot(handles.plot_speed, ar_speed);
+plot(handles.plot_swstate, ar_sw_state);
+plot(handles.plot_heading, ar_heading);
 
 % apply titles and other info
 title(handles.plot_volt, 'Voltage');
@@ -154,34 +155,31 @@ title(handles.plot_alt, 'Altitude');
 title(handles.plot_press, 'Pressure');
 title(handles.plot_temp, 'Temperature');
 title(handles.plot_pos, 'Position');
+title(handles.plot_speed, 'Speed');
+title(handles.plot_swstate, 'Software State');
+title(handles.plot_heading, 'Heading');
 
 ylabel(handles.plot_volt, 'Voltage (V)');
 ylabel(handles.plot_alt, 'Altitude (m)');
 ylabel(handles.plot_press, 'Pressure (Pa)');
 ylabel(handles.plot_temp, 'Temperature (C)');
+ylabel(handles.plot_speed, 'Speed (m/s)');
+ylabel(handles.plot_swstate, 'Software State');
+ylabel(handles.plot_pos, 'Y Position (m)');
+xlabel(handles.plot_pos, 'X Position (m)');
+ylabel(handles.plot_heading, 'Heading (from N)');
 
 % update status info
 set(handles.str_teamid, 'String', ar_teamid{length(ar_teamid)});
 set(handles.str_misstm, 'String', ar_miss_time{length(ar_miss_time)});
 set(handles.str_pckcnt, 'String', ar_packets{length(ar_packets)});
-set(handles.str_swstate, 'String', ar_sw_state{length(ar_sw_state)});
+set(handles.str_swstate, 'String', ar_sw_state(length(ar_sw_state)));
 
 % --- Executes during object creation, after setting all properties.
 function str_teamid_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to str_teamid (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-
-
-
-function str_filename_Callback(hObject, eventdata, handles)
-% hObject    handle to str_filename (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of str_filename as text
-%        str2double(get(hObject,'String')) returns contents of str_filename as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function str_filename_CreateFcn(hObject, eventdata, handles)
@@ -194,17 +192,6 @@ function str_filename_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-
-function str_output_Callback(hObject, eventdata, handles)
-% hObject    handle to str_output (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of str_output as text
-%        str2double(get(hObject,'String')) returns contents of str_output as a double
-
 
 % --- Executes during object creation, after setting all properties.
 function str_output_CreateFcn(hObject, eventdata, handles)
