@@ -1,12 +1,18 @@
 % Owner:        VT CanSat
 % File:         ReceiveData.m
 % Description:  This script receives data from the xbee radio
-%               over the serial UART port
+%               over the serial UART port and saves to a .csv
 % Modified By:  Sky Hoffert
-% LastModified: 6/8/2017
+% LastModified: 6/8/2018
 
 % filename
-filename = 'log.csv'
+filename = 'telemetry.csv'
+com_port = 'COM6'
+
+% clear out the old file
+fout = fopen(filename, 'w');
+fclose(fout);
+clear fout
 
 % close the old serial connection if it is open already
 if exist('serialCon', 'var')
@@ -16,7 +22,7 @@ if exist('serialCon', 'var')
 end
 
 % build the serial connection
-serialCon = serial('COM6')
+serialCon = serial(com_port)
 set(serialCon, 'BaudRate', 9600);
 set(serialCon, 'Parity', 'none');
 set(serialCon, 'DataBits', 8);
@@ -24,31 +30,33 @@ set(serialCon, 'StopBit', 1);
 set(serialCon, 'Timeout', 1.5);
 set(serialCon, 'FlowControl', 'none');
 
-% open the connection
+% try to open the connection, if not, exit
 % NOTE: this must be closed after the program is halted
 %       the procedure to close can be found at the bottom of the file
-fopen(serialCon);
+try
+    fopen(serialCon);
+catch
+    fprintf('Could not connect to XBee on ')
+    fprintf(com_port)
+    fprintf('\n')
+    return
+end
 
 % the bool for if the program is running
 isRunning = true;
+% in 2018, we have 16 fields
+data_matrix_empty = [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0];
+data_matrix = data_matrix_empty;
 
 % main data taking loop
 while isRunning
     % get the data from the UART connection
     data = fscanf(serialCon)
     if ~isempty(data)
-        data_matrix(1) = str2num(data(1:4));
-        data_matrix(2) = str2num(data(6:9));
-        data_matrix(3) = str2num(data(11:14));
-        data_matrix(4) = str2num(data(16:19));
-        data_matrix(5) = str2num(data(21:24));
-        data_matrix(6) = str2num(data(26:29));
-        data_matrix(7) = str2num(data(31:34));
-        data_matrix(8) = str2num(data(36:39));
-        data_matrix(9) = str2num(data(41:44));
-        data_matrix(10) = str2num(data(46:49));
+        % split the data by ',' character
+        data_matrix = strsplit(data);
     else
-        data_matrix = [0 0 0 0 0 0 0 0 0 0];
+        data_matrix = data_matrix_empty;
     end
     
     % append data to the save file
