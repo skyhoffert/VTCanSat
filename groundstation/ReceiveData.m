@@ -61,6 +61,15 @@ while isRunning
     
     % append data to the save file
     dlmwrite(filename, data_matrix, 'delimiter', ',', '-append');
+    
+    % update displays
+    disp_data = csvread(filename);
+    mission_time = disp_data(:,2);
+    
+    for i = 1:16
+        figure(i);
+        plot(mission_time, disp_data(:,i));
+    end
 end
 
 % close the connection for future use
