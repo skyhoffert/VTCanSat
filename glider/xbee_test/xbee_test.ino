@@ -1,7 +1,7 @@
 #include <SoftwareSerial.h>
 
-#define rxPin 17
-#define txPin 16
+#define rxPin 0
+#define txPin 1
 
 SoftwareSerial xbee =  SoftwareSerial(rxPin, txPin);
 void setup(){
